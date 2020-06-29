@@ -42,7 +42,7 @@ final class LazyTypeLoaderTest extends TestCase
     /** @var callable */
     private $postStoryMutationInput;
 
-    /** @var callable */
+    /** @var callable(string):?callable */
     private $typeLoader;
 
     /** @var string[] */
