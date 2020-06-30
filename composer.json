@@ -1,9 +1,9 @@
 {
-  "name":              "webonyx/graphql-php",
+  "name":              "mpscl/graphql-php",
   "description":       "A PHP port of GraphQL reference implementation",
   "type":              "library",
   "license":           "MIT",
-  "homepage":          "https://github.com/webonyx/graphql-php",
+  "homepage":          "https://github.com/mpscl/graphql-php",
   "keywords":          [
     "graphql",
     "API"
