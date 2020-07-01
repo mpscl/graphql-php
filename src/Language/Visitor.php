@@ -203,7 +203,7 @@ class Visitor
             $isLeaving = $index === count($keys);
             $key       = null;
             $node      = null;
-            $isEdited  = $isLeaving && count($edits) !== 0;
+            $isEdited  = $isLeaving && count($edits) > 0;
 
             if ($isLeaving) {
                 $key    = ! $ancestors ? $UNDEFINED : $path[count($path) - 1];
@@ -336,7 +336,7 @@ class Visitor
             }
         } while ($stack);
 
-        if (count($edits) !== 0) {
+        if (count($edits) > 0) {
             $newRoot = $edits[0][1];
         }
 
@@ -401,7 +401,7 @@ class Visitor
         return [
             'enter' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
                 for ($i = 0; $i < $visitorsCount; $i++) {
-                    if (! empty($skipping[$i])) {
+                    if ($skipping[$i] !== null) {
                         continue;
                     }
 
@@ -417,27 +417,22 @@ class Visitor
 
                     $result = $fn(...func_get_args());
 
-                    if (! ($result instanceof VisitorOperation)) {
-                        if ($result !== null) {
+                    if ($result instanceof VisitorOperation) {
+                        if ($result->doContinue) {
+                            $skipping[$i] = $node;
+                        } elseif ($result->doBreak) {
+                            $skipping[$i] = $result;
+                        } elseif ($result->removeNode) {
                             return $result;
                         }
-                        continue;
-                    }
-
-                    if ($result->doContinue) {
-                        $skipping[$i] = $node;
-                    } elseif ($result->doBreak) {
-                        $skipping[$i] = $result;
-                    } elseif ($result->removeNode) {
+                    } elseif ($result !== null) {
                         return $result;
                     }
                 }
-
-                return null;
             },
             'leave' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
                 for ($i = 0; $i < $visitorsCount; $i++) {
-                    if (empty($skipping[$i])) {
+                    if ($skipping[$i] === null) {
                         $fn = self::getVisitFn(
                             $visitors[$i],
                             $node->kind, /* isLeaving */
